@@ -1,0 +1,23 @@
+CREATE DATABASE area;
+
+use area
+
+CREATE TABLE areas(
+    radius INT,
+    area DOUBLE);
+
+DELIMITER $$
+CREATE PROCEDURE calculate_circle_areas()
+    BEGIN
+    DECLARE r INT DEFAULT 5;
+    DECLARE a DOUBLE;
+    WHILE r<=9 DO
+    SET a=PI()*POW(r,2);
+    INSERT INTO areas(radius,area) VALUES(r,a);
+    SET r=r+1;
+    END WHILE;
+    END $$
+
+DELIMITER ;
+    
+CALL calculate_circle_areas();

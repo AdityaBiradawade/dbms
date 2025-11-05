@@ -1,0 +1,50 @@
+db.products.createIndex({ category: 1 })
+
+db.products.getIndexes();
+
+db.products.createIndex({ category: 1,price:-1 })
+
+db.products.getIndexes();
+
+db.products.aggregate([
+  {
+    $group: {
+      _id: "$category",
+      totalQuantity: { $sum: "$qty" },
+      avgPrice: { $avg: "$price" },
+      totalValue: { $sum: { $multiply: ["$price", "$qty"] } }
+    }
+  }
+]);
+
+db.products.aggregate([
+  { $match: { category: "fruit" } },
+  { $sort: { price: -1 } },
+  { $limit: 2 },
+  { $project: { _id: 0, name: 1, price: 1 } }
+]);
+
+db.products.aggregate([
+  {
+    $project: {
+      category: 1,
+      totalsales: { $multiply: ["$price", "$qty"] }
+    }
+  },
+  {
+    $group: {
+      _id: "$category",
+      totalsales: { $sum: "$totalsales" }
+    }
+  },
+  {
+    $sort: { totalsales: -1 }
+  }
+]);
+
+db.products.find({ category: "fruit" }).sort({ price: -1 }).explain("executionStats");
+
+
+db.products.dropIndexes("category_1")
+
+db.products.dropIndexes( category_1_price_-1)

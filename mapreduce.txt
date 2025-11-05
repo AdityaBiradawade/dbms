@@ -1,0 +1,94 @@
+Create a collection named orsders
+
+db.orders.insertMany([
+  { item: "apple", price: 10, quantity: 2, category: "fruit" },
+  { item: "banana", price: 5, quantity: 5, category: "fruit" },
+  { item: "carrot", price: 7, quantity: 3, category: "vegetable" },
+  { item: "celery", price: 4, quantity: 7, category: "vegetable" },
+  { item: "orange", price: 8, quantity: 4, category: "fruit" }
+]);
+
+Define the Map function
+The map function emits key-value pairs, where the key is the category, and the value is the quantity.
+var mapFunction = function() {
+  emit(this.category, this.quantity);
+};
+
+Define the Reduce function
+The reduce function sums up all the quantities for a given category.
+
+var reduceFunction = function(keyCategory, quantities) {
+  return Array.sum(quantities);
+};
+
+
+Use the mapReduce command on your orders collection:
+
+db.orders.mapReduce(
+  mapFunction,
+  reduceFunction,
+  {
+    out: "total_quantity_per_category"
+  }
+);
+
+
+View the results
+The output will be stored in a new collection called total_quantity_per_category
+db.total_quantity_per_category.find();
+
+
+[ { _id: 'fruit', value: 11 }, { _id: 'vegetable', value: 10 } ]
+
+
+Example 2:
+
+
+Create collection in Mongodb
+
+db.employee.insertMany([ { "name": "Amit", "dept": "IT" },
+
+{ "name": "Riya", "dept": "HR" },
+
+{ "name": "Raj", "dept": "IT" },
+
+{ "name": "Simran", "dept": "Finance" },
+
+{ "name": "Anita", "dept": "HR" } ])
+
+Map Function
+
+var mapFunction = function() {
+ 
+emit(this.dept, 1); };
+
+Reduce  Function
+
+ var reduceFunction = function(dept, values) {
+ 
+ return Array.sum(values); };
+
+
+call mapReduce Function
+
+ db.employee.mapReduce(
+ 
+ mapFunction,
+ 
+ reduceFunction,
+ 
+ { out: "dept_counts" }
+ 
+ )
+
+
+ check results:
+
+
+ db.dept_counts.find()
+[
+  { _id: 'IT', value: 2 },
+  { _id: 'HR', value: 2 },
+  { _id: 'Finance', value: 1 }
+]
+

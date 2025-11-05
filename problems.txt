@@ -1,0 +1,473 @@
+# problem statement 1
+
+-- Q1 Create above tables with appropriate constraints like primary key, foreign key, not null etc. with suitable data
+CREATE TABLE Branch(branch_name VARCHAR(30) PRIMARY KEY, branch_city VARCHAR(30), assets INT);
+CREATE TABLE Account(acc_no INT PRIMARY KEY, branch_name VARCHAR(30), balance DECIMAL(10,2),
+FOREIGN KEY(branch_name) REFERENCES Branch(branch_name));
+CREATE TABLE Customer(cust_name VARCHAR(30) PRIMARY KEY, cust_street VARCHAR(30), cust_city VARCHAR(30));
+CREATE TABLE Depositor(cust_name VARCHAR(30), acc_no INT,
+FOREIGN KEY(cust_name) REFERENCES Customer(cust_name),
+FOREIGN KEY(acc_no) REFERENCES Account(acc_no));
+CREATE TABLE Loan(loan_no INT PRIMARY KEY, branch_name VARCHAR(30), amount DECIMAL(10,2),
+FOREIGN KEY(branch_name) REFERENCES Branch(branch_name));
+CREATE TABLE Borrower(cust_name VARCHAR(30), loan_no INT,
+FOREIGN KEY(cust_name) REFERENCES Customer(cust_name),
+FOREIGN KEY(loan_no) REFERENCES Loan(loan_no));
+
+-- Q2 Create view/alias for customer table as cust.
+CREATE VIEW cust AS SELECT * FROM Customer;
+
+-- Q3 Add customer phone number in Customer table.
+ALTER TABLE Customer ADD phone_no VARCHAR(15);
+
+-- Q4 Delete phone number attribute from Customer table.
+ALTER TABLE Customer DROP COLUMN phone_no;
+
+-- Q5 Find the names of all branches in loan relation.
+SELECT DISTINCT branch_name FROM Loan;
+
+-- Q6  Find all customers who have a loan from bank. Find their names,loan_no and loan amount.      
+SELECT b.cust_name, l.loan_no, l.amount
+FROM Borrower b JOIN Loan l ON b.loan_no = l.loan_no;
+
+-- Q7 List all customers in alphabetical order who have loan from Akurdi branch.
+SELECT c.cust_name
+FROM Borrower b JOIN Loan l ON b.loan_no = l.loan_no
+JOIN Customer c ON b.cust_name = c.cust_name
+WHERE l.branch_name = 'Akurdi'
+ORDER BY c.cust_name;
+
+-- Q8 Find average account balance at Akurdi branch.
+SELECT AVG(balance) AS avg_balance
+FROM Account
+WHERE branch_name = 'Akurdi';
+
+-- Q9 Find no. of depositors at each branch.
+SELECT branch_name, COUNT(acc_no) AS No_of_Depositors
+FROM Account GROUP BY branch_name;
+
+# problem statement 2
+Q.1 Create above tables with appropriate constraints like primary key, foreign key constrains, not null etc. with suitable data
+Q.2. Modify “assets” attribute of branch table to “Property”  
+Q.3. Find all loan numbers for loans made at Akurdi Branch with loan amount > 12000.
+Q.4. Find the average account balance at each branch
+Q.5. Find the branches where average account balance > 12000.
+Q.6. Find number of tuples in customer relation.
+Q.7. Calculate total loan amount given by bank.
+Q.8. Delete all loans with loan amount between 1300 and 1500.
+
+
+-- Q1 same as before (create tables)
+
+-- Q2
+ALTER TABLE Branch RENAME COLUMN assets TO Property;
+
+-- Q3
+SELECT loan_no FROM Loan
+WHERE branch_name = 'Akurdi' AND amount > 12000;
+
+-- Q4
+SELECT branch_name, AVG(balance) AS Avg_Balance
+FROM Account GROUP BY branch_name;
+
+-- Q5
+SELECT branch_name FROM Account
+GROUP BY branch_name
+HAVING AVG(balance) > 12000;
+
+-- Q6
+SELECT COUNT(*) FROM Customer;
+
+-- Q7
+SELECT SUM(amount) AS Total_Loan FROM Loan;
+
+-- Q8
+DELETE FROM Loan WHERE amount BETWEEN 1300 AND 1500;
+
+# problem statement 3
+
+a)	Consider following  database schema and solve given queries
+cust_mstr(cust_no,fname,lname)
+add_dets(code_no,add1,add2,state,city,pincode)
+1.	Create above Tables with suitable data
+2.	Retrieve the address of customer Fname as 'xyz' and Lname as 'pqr'
+3.	Create View on add_dets table by selecting any two columns and perform insert update delete operations
+b)	Create following Tables
+ emp_mstr(e_mpno,f_name,l_name,m_name,dept,desg,branch_no)
+ branch_mstr(name,b_no)
+List the employee details along with branch names to which they belong 
+
+CREATE TABLE cust_mstr(cust_no INT PRIMARY KEY, fname VARCHAR(20), lname VARCHAR(20));
+CREATE TABLE add_dets(code_no INT PRIMARY KEY, add1 VARCHAR(50), add2 VARCHAR(50), state VARCHAR(20), city VARCHAR(20), pincode INT);
+
+-- Retrieve address
+SELECT * FROM add_dets
+WHERE code_no IN (SELECT cust_no FROM cust_mstr WHERE fname='xyz' AND lname='pqr');
+
+-- View creation
+CREATE VIEW add_view AS SELECT add1, city FROM add_dets;
+INSERT INTO add_view VALUES ('Street 1','Pune');
+UPDATE add_view SET city='Mumbai' WHERE add1='Street 1';
+DELETE FROM add_view WHERE city='Mumbai';
+
+-- Employee & branch join
+CREATE TABLE emp_mstr(emp_no INT PRIMARY KEY, f_name VARCHAR(20), l_name VARCHAR(20), m_name VARCHAR(20), dept VARCHAR(20), desg VARCHAR(20), branch_no INT);
+CREATE TABLE branch_mstr(b_no INT PRIMARY KEY, name VARCHAR(20));
+SELECT e.*, b.name AS branch_name
+FROM emp_mstr e JOIN branch_mstr b ON e.branch_no=b.b_no;
+
+# problem statement 4
+
+a)	Create following Tables with suitable data and solve following query
+ 		cust_mstr(custno,fname,lname)
+ 		acc_fd_cust_dets(codeno,acc_fd_no)
+ 		fd_dets(fd_sr_no,amt)	
+List the customer holding fixed deposit of amount more than 5000 
+
+b)	Create view on cust_mstr and acc_fd_cust_dets tables by selecting any one column   
+from each table perform insert update delete operations
+
+c)	Create following Tables with suitable data and solve following query
+emp_mstr(emp_no,f_name,l_name,m_name,dept)
+cntc_dets(code_no,cntc_type,cntc_data)
+List the employee details along with contact details using left outer join & right join 
+
+
+CREATE TABLE cust_mstr(custno INT, fname VARCHAR(20), lname VARCHAR(20));
+CREATE TABLE acc_fd_cust_dets(codeno INT, acc_fd_no INT);
+CREATE TABLE fd_dets(fd_sr_no INT, amt DECIMAL(10,2));
+
+SELECT c.fname, c.lname, f.amt
+FROM cust_mstr c, acc_fd_cust_dets a, fd_dets f
+WHERE a.codeno=c.custno AND a.acc_fd_no=f.fd_sr_no AND f.amt>5000;
+
+CREATE VIEW cust_acc_view AS
+SELECT custno, acc_fd_no FROM acc_fd_cust_dets;
+INSERT INTO cust_acc_view VALUES (1,101);
+UPDATE cust_acc_view SET acc_fd_no=202 WHERE custno=1;
+DELETE FROM cust_acc_view WHERE custno=1;
+
+CREATE TABLE emp_mstr(emp_no INT, f_name VARCHAR(20), l_name VARCHAR(20), m_name VARCHAR(20), dept VARCHAR(20));
+CREATE TABLE cntc_dets(code_no INT, cntc_type VARCHAR(20), cntc_data VARCHAR(30));
+SELECT e.*, c.cntc_type, c.cntc_data
+FROM emp_mstr e LEFT JOIN cntc_dets c ON e.emp_no=c.code_no;
+SELECT e.*, c.*
+FROM emp_mstr e RIGHT JOIN cntc_dets c ON e.emp_no=c.code_no;
+
+# problem statement 5
+
+Q 1. Borrower(Roll_no, Name, DateofIssue, NameofBook, Status)
+         Fine(Roll_no,Date,Amt)
+1.  Accept roll_no & name of book from user.
+2. Check the number of days (from date of issue), if days are between 15 to 30 then fine amount will be Rs 5per day.
+3.  If no. of days>30, per day fine will be Rs 50 per day & for days less than 30, Rs. 5 per day.
+ After submitting the book, status will change from I to R
+4. If condition of fine is true, then details will be stored into fine table.
+5. Also handles the exception by named exception handler or user define exception handler.
+
+
+DECLARE
+  v_days NUMBER;
+  v_fine NUMBER;
+BEGIN
+  SELECT (SYSDATE - DateOfIssue) INTO v_days FROM Borrower WHERE Roll_no=&roll_no AND NameofBook='&book';
+
+  IF v_days BETWEEN 15 AND 30 THEN
+    v_fine := v_days * 5;
+  ELSIF v_days > 30 THEN
+    v_fine := v_days * 50;
+  ELSE
+    v_fine := 0;
+  END IF;
+
+  UPDATE Borrower SET Status='R' WHERE Roll_no=&roll_no;
+  
+  IF v_fine>0 THEN
+    INSERT INTO Fine VALUES(&roll_no, SYSDATE, v_fine);
+  END IF;
+EXCEPTION
+  WHEN OTHERS THEN DBMS_OUTPUT.PUT_LINE('Error occurred!');
+END;
+
+# problem statement 6
+
+Write a PL/SQL code block to calculate the area of a circle for a value of radius varying from 1 to 10. Store the radius and the corresponding values of calculated area in an empty table named areas, consisting of two columns, radius and area
+
+CREATE TABLE areas(radius NUMBER, area NUMBER);
+
+DECLARE
+  r NUMBER;
+  a NUMBER;
+BEGIN
+  FOR r IN 1..10 LOOP
+    a := 3.14 * r * r;
+    INSERT INTO areas VALUES (r, a);
+  END LOOP;
+END;
+/
+SELECT * FROM areas;
+
+# problem statement 7
+
+Write a Stored Procedure namely proc_Grade for the categorization of student. If marks scored by students in examination is <=1500 and marks>=990 then student will be placed in distinction category if marks scored are between 989 and 900 category is first class, if marks 899 and 825 category is Higher Second Class. 
+Write a PL/SQL block to use procedure created with above requirement. 
+Stud_Marks(name, total_marks)        Result(Roll,Name, Class)
+
+
+CREATE TABLE Stud_Marks(name VARCHAR(30), total_marks NUMBER);
+CREATE TABLE Result(roll NUMBER, name VARCHAR(30), class VARCHAR(30));
+
+CREATE OR REPLACE PROCEDURE proc_Grade(p_name VARCHAR, p_marks NUMBER) AS
+  v_class VARCHAR(20);
+BEGIN
+  IF p_marks BETWEEN 990 AND 1500 THEN v_class := 'Distinction';
+  ELSIF p_marks BETWEEN 900 AND 989 THEN v_class := 'First Class';
+  ELSIF p_marks BETWEEN 825 AND 899 THEN v_class := 'Higher Second';
+  ELSE v_class := 'Fail';
+  END IF;
+  INSERT INTO Result VALUES(NULL, p_name, v_class);
+END;
+/
+
+DECLARE
+  CURSOR c1 IS SELECT * FROM Stud_Marks;
+BEGIN
+  FOR i IN c1 LOOP
+    proc_Grade(i.name, i.total_marks);
+  END LOOP;
+END;
+/
+SELECT * FROM Result;
+
+# problem statement 8
+
+Write a PL/SQL block of code using parameterized Cursor that will merge the data available in the newly created table N_RollCall with the data available in the table O_RollCall. If the data in the first table already exist in the second table then that data should be skipped. 
+
+CREATE TABLE O_RollCall(roll_no INT, name VARCHAR(20));
+CREATE TABLE N_RollCall(roll_no INT, name VARCHAR(20));
+
+DECLARE
+  CURSOR c_merge IS SELECT * FROM N_RollCall;
+  v_row N_RollCall%ROWTYPE;
+  v_count NUMBER;
+BEGIN
+  OPEN c_merge;
+  LOOP
+    FETCH c_merge INTO v_row;
+    EXIT WHEN c_merge%NOTFOUND;
+
+    SELECT COUNT(*) INTO v_count
+    FROM O_RollCall WHERE roll_no = v_row.roll_no;
+
+    IF v_count = 0 THEN
+      INSERT INTO O_RollCall VALUES (v_row.roll_no, v_row.name);
+    END IF;
+  END LOOP;
+  CLOSE c_merge;
+END;
+/
+
+# problem statement 9
+
+Write a database trigger on Library table. The System should keep track of the records that are being updated or deleted. The old value of updated or deleted records should be added in Library_Audit table.
+
+CREATE TABLE Library(id INT PRIMARY KEY, book_name VARCHAR(50), author VARCHAR(50));
+CREATE TABLE Library_Audit(id INT, book_name VARCHAR(50), author VARCHAR(50), action_type VARCHAR(10), action_date DATE);
+
+CREATE OR REPLACE TRIGGER trg_Library_Audit
+AFTER DELETE OR UPDATE ON Library
+FOR EACH ROW
+BEGIN
+  INSERT INTO Library_Audit
+  VALUES(:OLD.id, :OLD.book_name, :OLD.author,
+         CASE WHEN UPDATING THEN 'UPDATE' ELSE 'DELETE' END,
+         SYSDATE);
+END;
+/
+
+# problem statement 10
+
+Database Connectivity: Write a program to implement MySQL/Oracle database connectivity with any front end language to implement Database navigation operations (add, delete, edit etc.)
+
+import mysql.connector
+con = mysql.connector.connect(host="localhost", user="root", password="root", database="bank")
+cur = con.cursor()
+
+# Add
+cur.execute("INSERT INTO customer VALUES('Amit','MG Road','Pune')")
+# Edit
+cur.execute("UPDATE customer SET cust_city='Mumbai' WHERE cust_name='Amit'")
+# Delete
+cur.execute("DELETE FROM customer WHERE cust_name='Amit'")
+
+con.commit()
+con.close()
+
+# problem statement 11
+
+// 1. Find all teachers
+db.Teachers.find()
+
+// 2. Teachers of computer department
+db.Teachers.find({ dname: "Computer" })
+
+// 3. Teachers of computer, IT, E&TC
+db.Teachers.find({ dname: { $in: ["Computer","IT","E&TC"] } })
+
+// 4. Above depts with salary ≥ 10000
+db.Teachers.find({ dname: { $in: ["Computer","IT","E&TC"] }, salary: { $gte: 10000 } })
+
+// 5. Student info having roll_no=2 or Sname=xyz
+db.Students.find({ $or: [{ roll_no: 2 }, { Sname: "xyz" }] })
+
+// 6. Update Praveen’s experience or insert new
+db.Teachers.updateOne(
+  { Tname: "Praveen" },
+  { $set: { experience: "10 years" } },
+  { upsert: true }
+)
+
+// 7. Change IT dept → COMP
+db.Teachers.updateMany({ dname: "IT" }, { $set: { dname: "COMP" } })
+
+// 8. Show teacher name & experience
+db.Teachers.find({}, { Tname: 1, experience: 1 })
+
+// 9. Insert one entry in Department collection
+db.Department.save({ dno: 1, dname: "Computer" })
+
+# problem statement 12
+
+// States with population > 100000
+db.zipcode.aggregate([
+  { $group: { _id: "$state", totalPop: { $sum: "$pop" } } },
+  { $match: { totalPop: { $gt: 100000 } } }
+])
+
+// Create indexes
+db.zipcode.createIndex({ city: 1 })
+db.zipcode.createIndex({ state: 1, city: 1 })
+
+// Total population per state
+db.zipcode.aggregate([{ $group: { _id: "$state", totalPop: { $sum: "$pop" } } }])
+
+// Average population per city per state
+db.zipcode.aggregate([
+  { $group: { _id: { state: "$state", city: "$city" }, avgPop: { $avg: "$pop" } } }
+])
+
+// States having total population > 20000
+db.zipcode.aggregate([
+  { $group: { _id: "$state", totalPop: { $sum: "$pop" } } },
+  { $match: { totalPop: { $gt: 20000 } } }
+])
+
+// Cities in California with pop > 10000
+db.zipcode.find({ state: "CA", pop: { $gt: 10000 } })
+
+# problem statement 13
+
+-- Supplier–Parts–Catalog
+SELECT Pname FROM Parts WHERE Color='Green';
+SELECT DISTINCT Sname FROM Supplier s
+JOIN Catalog c ON s.Sid=c.Sid
+JOIN Parts p ON c.Pid=p.Pid
+WHERE p.Color='Red';
+SELECT Pname FROM Parts p
+JOIN Catalog c ON p.Pid=c.Pid
+WHERE c.cost>25;
+
+-- Person–Company–Manages
+SELECT p.street, p.city
+FROM Person p, Manages m, Company c
+WHERE p.pname=m.pname AND m.mname=c.cname
+  AND c.cname='Idea' AND p.city='Pune' AND m.salary>3000;
+
+-- Student–Subject–Marks
+SELECT s.name, AVG(m.marks) AS avg_marks
+FROM Student s JOIN Marks m ON s.Rollno=m.Rollno
+GROUP BY s.name;
+
+SELECT COUNT(*) AS Failed_Students
+FROM Marks m JOIN Subject s ON m.sub_code=s.sub_code
+WHERE s.sub_name='DBMS' AND m.marks<40;
+
+# problem statement 14
+
+var mapFunc = function() { emit(this.product_name, this.quantity); };
+var reduceFunc = function(key, values) { return Array.sum(values); };
+
+db.grocery_sales.mapReduce(mapFunc, reduceFunc, { out: "total_sales" });
+db.total_sales.find();
+
+# problem statement 15
+
+from pymongo import MongoClient
+client = MongoClient("mongodb://localhost:27017/")
+db = client["CollegeDB"]
+coll = db["Students"]
+
+# Add
+coll.insert_one({"Sname": "Amit", "roll_no": 1})
+# Edit
+coll.update_one({"roll_no": 1}, {"$set": {"Sname": "Amit Sharma"}})
+# Delete
+coll.delete_one({"roll_no": 1})
+
+# problem statement 16
+
+// Average marks per department
+db.students.aggregate([{ $group: { _id: "$department", avgMarks: { $avg: "$marks" } } }])
+
+// Highest marks per department
+db.students.aggregate([{ $group: { _id: "$department", maxMarks: { $max: "$marks" } } }])
+
+// Sum of marks per department
+db.students.aggregate([{ $group: { _id: "$department", totalMarks: { $sum: "$marks" } } }])
+
+// Count of students per city
+db.students.aggregate([{ $group: { _id: "$city", count: { $sum: 1 } } }])
+
+// Sum of marks per department ascending
+db.students.aggregate([
+  { $group: { _id: "$department", totalMarks: { $sum: "$marks" } } },
+  { $sort: { totalMarks: 1 } }
+])
+
+// Indexes
+db.students.createIndex({ department: 1 })
+db.students.createIndex({ department: 1, city: 1 })
+
+# problem statement 17
+
+CREATE TABLE students(student_id INT, name VARCHAR(30), age INT, marks INT, city VARCHAR(30));
+CREATE TABLE alumni(alumni_id INT, name VARCHAR(30), city VARCHAR(30));
+
+-- Insert sample data
+INSERT INTO students VALUES (1,'Amit',20,85,'Pune');
+INSERT INTO alumni VALUES (1,'Amit','Pune');
+
+-- Select with operators
+SELECT * FROM students WHERE marks>60 AND city='Pune';
+
+-- SQL functions
+SELECT name, UPPER(city), AVG(marks) FROM students GROUP BY city;
+
+-- Sorting/filtering
+SELECT * FROM students ORDER BY marks DESC;
+
+-- Update & Delete
+UPDATE students SET marks=marks+5 WHERE city='Pune';
+DELETE FROM students WHERE marks<40;
+
+-- Set Operators
+SELECT name, city FROM students
+UNION
+SELECT name, city FROM alumni;
+
+SELECT name FROM students
+INTERSECT
+SELECT name FROM alumni;
+
+-- Subquery
+SELECT name FROM students WHERE name IN (SELECT name FROM alumni);

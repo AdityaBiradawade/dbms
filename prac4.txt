@@ -1,0 +1,61 @@
+CREATE TABLE Stud_Marks (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(50),
+    Total_Marks NUMBER
+);
+
+CREATE TABLE Result (
+    Roll NUMBER PRIMARY KEY,
+    Name VARCHAR2(50),
+    Class VARCHAR2(30)
+);
+
+DELIMITER $$
+
+CREATE PROCEDURE proc_grade()
+BEGIN
+    DECLARE v_roll INT;
+    DECLARE v_name VARCHAR(50);
+    DECLARE v_marks INT;
+    DECLARE v_class VARCHAR(50);
+    DECLARE done INT DEFAULT 0;
+
+    DECLARE c1 CURSOR FOR SELECT roll, name, total_marks FROM stud_marks;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    OPEN c1;
+
+    read_loop: LOOP
+        FETCH c1 INTO v_roll, v_name, v_marks;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        IF v_marks BETWEEN 990 AND 1500 THEN
+            SET v_class = 'Distinction';
+        ELSEIF v_marks BETWEEN 900 AND 989 THEN
+            SET v_class = 'First Class';
+        ELSEIF v_marks BETWEEN 825 AND 899 THEN
+            SET v_class = 'Higher Second Class';
+        ELSE
+            SET v_class = 'Fail';
+        END IF;
+
+        INSERT INTO result (roll, name, class)
+        VALUES (v_roll, v_name, v_class);
+    END LOOP;
+
+    CLOSE c1;
+END $$
+
+DELIMITER ;
+
+INSERT INTO stud_marks VALUES
+(1, 'Aditya', 995),
+(2, 'Ravi', 945),
+(3, 'Sneha', 860),
+(4, 'Kiran', 780);
+
+CALL proc_grade();
+
+SELECT * FROM result;

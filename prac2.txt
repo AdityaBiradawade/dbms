@@ -1,0 +1,84 @@
+1) CREATE DATABASE prac2;
+
+2) use prac2
+
+3) CREATE TABLE department(
+   dept_id INT PRIMARY KEY AUTO_INCREMENT,
+   dept_name VARCHAR(50));
+
+4) CREATE TABLE course(
+   course_id INT PRIMARY KEY ,
+   course_name VARCHAR(50),
+   dept_id INT,
+   FOREIGN KEY(dept_id) REFERENCES department(dept_id));
+
+5) CREATE TABLE student(
+   stud_id INT PRIMARY KEY,
+   stud_name VARCHAR(50),
+   gender char(10),
+   dept_id INT,
+   marks INT,
+   FOREIGN KEY (dept_id) REFERENCES department(dept_id));
+
+6) INSERT INTO department(dept_name) VALUES ('computer'),('mechanical');
+
+7) INSERT INTO course(course_id,course_name,dept_id) VALUES(101,'DBMS',1),(102,'DSA',1),(201,'M2',2);
+
+8) INSERT INTO student (stud_id,stud_name,gender,dept_id,marks)       VALUES(1,'Aditya','Male',1,85),(2,'Aditi','female',1,90),(3,'om','Male',2,75),(4,'siddhi','female',2,60); 
+
+9) SELECT s.stud_name, d.dept_name
+   FROM Student s
+   INNER JOIN Department d ON s.dept_id = d.dept_id;
+
+10) SELECT s.stud_name, d.dept_name
+    FROM Student s
+    LEFT JOIN Department d ON s.dept_id = d.dept_id;
+
+11) SELECT s.stud_name, d.dept_name
+    FROM Student s
+    RIGHT JOIN Department d ON s.dept_id = d.dept_id;
+
+12) SELECT s1.stud_name AS Student1, s2.stud_name AS Student2
+    FROM Student s1
+    JOIN Student s2 ON s1.dept_id = s2.dept_id
+    WHERE s1.stud_id < s2.stud_id;
+
+13) SELECT s.stud_name, d.dept_name
+    FROM student s
+    LEFT JOIN department d ON s.dept_id = d.dept_id
+
+    UNION
+
+   SELECT s.stud_name, d.dept_name
+   FROM student s
+   RIGHT JOIN department d ON s.dept_id = d.dept_id;
+
+14) SELECT stud_name, marks
+    FROM Student
+    WHERE marks = (SELECT MAX(marks) FROM Student);
+
+15) SELECT stud_name, dept_id
+    FROM student
+    WHERE dept_id IN (
+    SELECT dept_id FROM department WHERE dept_name = 'computer'
+    );
+
+16) SELECT stud_name, marks
+    FROM Student s
+    WHERE marks > (SELECT AVG(marks) FROM Student WHERE dept_id = s.dept_id);
+
+17) CREATE VIEW v_student_info AS
+    SELECT s.stud_id, s.stud_name, d.dept_name, s.marks
+    FROM Student s JOIN Department d ON s.dept_id = d.dept_id;
+
+18)  SELECT * FROM v_stud WHERE marks > 80;
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,39 @@
+db.student.insertOne({name:"pratik",age:28,address:"beed"})
+
+ db.student.insertMany([{name:"Amit",age:25,address:"dehu"},{name:"om",age:21,address:"wakad"}])
+
+db.student.find()
+
+db.student.find({age:21})
+
+db.student.find({age:{$gt:20}})
+
+db.student.find({age:{$lt:25}})       
+
+db.student.find({$and:[{age:{$lt:21}},{address:"wakad"}]})
+
+db.student.find({$or:[{age:{$gt:25}},{address:"dehu"}]})
+
+db.student.find({ age: { $not: { $lt: 21 } } })
+
+db.student.find({
+   $or: [
+     { age: { $not: { $lt: 28 } } },
+     { address: "dehu" }
+   ]
+ })
+
+db.student.find({
+   $nor: [
+    { age: { $gte: 21 } },
+     { address: "beed" }
+   ]
+ })
+
+db.student.updateOne({name:"pratik"},{$set:{age:55}})
+
+db.student.updateMany({name:"amit"},{$set:{address:"newyork"}})
+
+db.student.deleteOne({name:"om"})
+
+db.student.deleteMany({address:"pune"})

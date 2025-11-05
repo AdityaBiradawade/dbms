@@ -1,0 +1,43 @@
+CREATE DATABASE library1;
+
+use library1;
+
+CREATE TABLE borrower( rollin INT,name VARCHAR(50),dateofissue DATE,nameofbook VARCHAR(50));
+
+
+INSERT INTO borrower VALUES(101,'abc','2017-07-16','dbms'),(102,'abc1','2017-07-18','cn'),(103,'abc3','2017-07-20','toc'),(104,'abc4','2017-07-22','ds'),(105,'abc5','2017-07-24','daa'),(106,'adi','2017-08-26','spm');
+
+1) AFTER INSERT
+
+CREATE TABLE library_audit(rollin INT,name VARCHAR(50),dateofissue DATE,nameofbook VARCHAR(50),ts timestamp);
+
+DELIMITER $$
+
+CREATE TRIGGER after_insert1
+AFTER INSERT ON borrower
+FOR EACH ROW
+BEGIN
+    INSERT INTO library_audit (rollin, name, dateofissue, nameofbook,ts)
+    VALUES (NEW.rollin, NEW.name, NEW.dateofissue, NEW.nameofbook, CURRENT_TIMESTAMP);
+END$$
+
+DELIMITER ;
+
+INSERT INTO borrower VALUES (107, 'Amit', '2025-11-04', 'AI Basics');
+
+
+2) AFTER DELETE
+
+DELIMITER $$
+
+CREATE TRIGGER after_delete
+AFTER DELETE ON borrower
+FOR EACH ROW
+BEGIN
+    INSERT INTO library_audit (rollin, name, dateofissue, nameofbook, ts)
+    VALUES (old.rollin, old.name, old.dateofissue, old.nameofbook, CURRENT_TIMESTAMP);
+END$$
+
+DELIMITER ;
+
+DELETE FROM borrower WHERE name='abc';
