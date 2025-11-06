@@ -1,0 +1,119 @@
+import mysql.connector
+
+# Connect to MySQL
+
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="kaustubh",
+    password="Strong@password",
+    database="exp8"
+
+)
+
+mycursor = mydb.cursor()
+
+# Ask user what they want to do
+choice = "0"
+
+while choice!="4" :
+
+    print("What do you want to do?")
+
+    print("1. Insert")
+
+    print("2. Update")
+
+    print("3. Delete")
+
+    print("4. Exit")
+
+    choice = input("Enter choice (1/2/3/4): ")
+
+
+    if choice == "1":
+
+        # INSERT
+
+        prn = input("Type PRN: ")
+
+        Name = input("Type Name: ")
+
+
+        sql = "INSERT INTO Student (PRN, Name) VALUES (%s, %s)"
+
+        val = (prn, Name)
+
+
+        mycursor.execute(sql, val)
+
+        mydb.commit()
+
+
+        print(mycursor.rowcount, "record inserted.")
+
+
+    elif choice == "2":
+
+        # UPDATE
+
+        prn = input("Enter the PRN of the student to update: ")
+
+        new_name = input("Enter the new name: ")
+
+
+        sql = "UPDATE Student SET Name = %s WHERE PRN = %s"
+
+        val = (new_name, prn)
+
+
+        mycursor.execute(sql, val)
+
+        mydb.commit()
+
+
+        print(mycursor.rowcount, "record updated.")
+
+
+    elif choice=="3":
+
+        #DELETE
+
+        prn = input("Enter the PRN of the student to delete: ")
+
+
+        sql = "DELETE FROM Student WHERE PRN = %s"
+
+        val = (prn,)
+
+
+        mycursor.execute(sql, val)
+
+        mydb.commit()
+
+
+        print(mycursor.rowcount, "record deleted.")
+
+    elif choice=="4":
+        print("Bye")
+
+    else:
+
+        print("Invalid choice. Please enter 1, 2, 3 or 4.")
+
+
+# Clean up
+
+mycursor.close()
+
+mydb.close()
+
+/*
+create database exp8;
+
+CREATE USER 'kaustubh'@'localhost' IDENTIFIED BY 'Strong@password';
+GRANT ALL PRIVILEGES ON exp8.* TO 'kaustubh'@'localhost';
+
+use exp8;
+
+create table Student(PRN int auto_increment primary key,Name varchar(20));
+*/
