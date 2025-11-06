@@ -24,6 +24,14 @@ Update, Delete with operators, functions, and set operator etc.
     email VARCHAR(50),
     CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES Department(dept_id));
 
+CREATE SEQUENCE stud_seq
+START WITH 1
+INCREMENT BY 1;
+
+CREATE SYNONYM stud FOR Student;
+
+
+
 5) CREATE INDEX idx_student_name ON Student(stud_name);
 
 6) CREATE VIEW v_student_details AS
@@ -45,6 +53,8 @@ Update, Delete with operators, functions, and set operator etc.
 11) SELECT stud_name,dob from student ORDER BY dob DESC;
 
 12) UPDATE student SET email='aditya@gmail.com' WHERE stud_name='Aditya';
+
+ALTER TABLE student ADD address VARCHAR(100);
 
 13) DELETE FROM student WHERE stud_name='Aditi';
 
